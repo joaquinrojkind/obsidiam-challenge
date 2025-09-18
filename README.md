@@ -16,6 +16,10 @@ From the terminal window in the project's root directory execute the following c
 
 This will run a MySQL database on docker.
 
+Compile the project
+
+`mvn clean install`
+
 Run the server, it uses port 8090, make sure it's not in use.
 
 `mvn spring-boot:run`
