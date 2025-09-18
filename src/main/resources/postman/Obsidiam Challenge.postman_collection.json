@@ -11,7 +11,13 @@
 			"name": "Create Exchange Order",
 			"request": {
 				"method": "POST",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ== ",
+						"type": "text"
+					}
+				],
 				"body": {
 					"mode": "raw",
 					"raw": "{\n    \"exchangeType\": \"BUY\",\n    \"amount\": 1200,\n    \"sourceCurrency\": \"USD\",\n    \"targetCurrency\": \"USDT\"\n}",
@@ -40,9 +46,15 @@
 			"name": "Get Status",
 			"request": {
 				"method": "GET",
-				"header": [],
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiYWRtaW4iOnRydWUsImlhdCI6MTUxNjIzOTAyMn0.TJVA95OrM7E2cBab30RMHrHDcEfxjoYZgeFONFh7HgQ== ",
+						"type": "text"
+					}
+				],
 				"url": {
-					"raw": "http://localhost:8090/exchanges/orders/9/status",
+					"raw": "http://localhost:8090/exchanges/orders/1/status",
 					"protocol": "http",
 					"host": [
 						"localhost"
@@ -51,8 +63,29 @@
 					"path": [
 						"exchanges",
 						"orders",
-						"9",
+						"1",
 						"status"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get Token",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8090/exchanges/security/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8090",
+					"path": [
+						"exchanges",
+						"security",
+						"token"
 					]
 				}
 			},

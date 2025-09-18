@@ -20,18 +20,22 @@ public class ExchangeOrderEntity {
     @Column(name = "id")
     private Long id;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "exchange_type", nullable = false)
     private ExchangeType exchangeType;
 
     @Column(name = "amount", nullable = false)
     private Double amount;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "source_currency", nullable = false)
     private Currency sourceCurrency;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "target_currency", nullable = false)
     private Currency targetCurrency;
 
+    @Enumerated(value = EnumType.STRING)
     @Column(name = "status", nullable = false)
     private Status status;
 }
