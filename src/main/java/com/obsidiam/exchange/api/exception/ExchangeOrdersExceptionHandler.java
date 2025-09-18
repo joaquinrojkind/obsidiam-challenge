@@ -5,6 +5,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import javax.persistence.EntityNotFoundException;
+
 @ControllerAdvice
 public class ExchangeOrdersExceptionHandler {
 
@@ -18,5 +20,17 @@ public class ExchangeOrdersExceptionHandler {
 		return ResponseEntity
 			.status(errorPayload.getStatus())
 			.body(errorPayload);
+	}
+
+	@ExceptionHandler({ EntityNotFoundException.class })
+	public ResponseEntity handleEntityNotFoundException(EntityNotFoundException exception) {
+		ApiErrorDto errorPayload = ApiErrorDto.builder()
+				.status(HttpStatus.NOT_FOUND.value())
+				.code(HttpStatus.NOT_FOUND.name())
+				.message("Exchange order not found")
+				.build();
+		return ResponseEntity
+				.status(errorPayload.getStatus())
+				.body(errorPayload);
 	}
 }

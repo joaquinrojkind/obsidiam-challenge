@@ -37,16 +37,6 @@ Use the Postman collection in `src/main/resources/postman` in order to test the 
 - Create exchange order endpoint.
 - Check exchange order status endpoint.
 
-Example of POST payload:
-```
-{
-    "exchangeType": "BUY",
-    "amount": 1200,
-    "sourceCurrency": "USD",
-    "targetCurrency": "USDT"
-}
-```
-
 ## Automated tests
 
 ### Unit tests
