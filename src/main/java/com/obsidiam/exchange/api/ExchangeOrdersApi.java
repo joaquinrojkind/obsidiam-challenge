@@ -29,7 +29,7 @@ public class ExchangeOrdersApi {
 
         ExchangeOrderResponseDto response = ExchangeOrderResponseDto.builder()
             .id(exchangeOrderId)
-            .location(String.format("/exchanges/%s/status", exchangeOrderId))
+            .location(String.format("/exchanges/orders/%s/status", exchangeOrderId))
             .build();
 
         return ResponseEntity.accepted().body(response);
