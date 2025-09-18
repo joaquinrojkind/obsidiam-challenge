@@ -1,0 +1,62 @@
+openapi: 3.0.0
+info:
+  title: Obsidiam API
+  version: 1.0.0
+servers:
+  - url: http://localhost:8090
+paths:
+  /exchanges/orders/{id}/status:
+    get:
+      summary: Get order status
+      parameters:
+        - name: id
+          in: path
+          description: Order id
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Respond with the status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+
+  /exchanges/orders:
+    post:
+      summary: Create an exchange order
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExchangeOrder'
+        required: true
+      responses:
+        '202':
+          description: Order accepted for processing.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  location:
+                    type: string
+components:
+  schemas:
+    ExchangeOrder:
+      type: object
+      properties:
+        exchangeType:
+          type: string
+        amount:
+          type: integer
+        sourceCurrency:
+          type: string
+        targetCurrency:
+          type: string

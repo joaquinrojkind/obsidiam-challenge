@@ -1,8 +1,8 @@
 package com.obsidiam.exchange.service;
 
-import com.obsidiam.exchange.service.model.ExchangeOrder;
 import com.obsidiam.exchange.persistence.entity.ExchangeOrderEntity;
 import com.obsidiam.exchange.persistence.repository.ExchangeOrderRepository;
+import com.obsidiam.exchange.service.model.ExchangeOrder;
 import com.obsidiam.exchange.service.model.Status;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,6 +16,10 @@ import java.util.stream.Collectors;
 @Service
 public class ExchangeOrderServiceImpl implements ExchangeOrderService {
 
+    private ThreadLocal<Integer> retryCounter = new ThreadLocal<>();
+
+    private static final Integer RETRY_COUNTER_MAX = 2;
+
     @Autowired
     private ExchangeOrderRepository exchangeOrderRepository;
 
@@ -28,24 +32,44 @@ public class ExchangeOrderServiceImpl implements ExchangeOrderService {
     @Override
     @Transactional
     public Long createExchangeOrder(ExchangeOrder exchangeOrder) {
-        exchangeOrder.setStatus(Status.PENDING);
-        ExchangeOrderEntity savedExchangeOrder = exchangeOrderRepository.save(toExchangeOrderEntity(exchangeOrder));
 
-        List<ExchangeOrderEntity> pendingOrders = exchangeOrderRepository.findByStatus(Status.PENDING);
+        ExchangeOrderEntity savedExchangeOrder = null;
 
-        List<ExchangeOrderEntity> filteredOrders = pendingOrders.stream()
-                .filter(order -> !order.getExchangeType().equals(exchangeOrder.getExchangeType()))
-                .filter(order -> order.getSourceCurrency().equals(exchangeOrder.getSourceCurrency()))
-                .filter(order -> order.getTargetCurrency().equals(exchangeOrder.getTargetCurrency()))
-                .filter(order -> order.getAmount().equals(exchangeOrder.getAmount()))
-                .collect(Collectors.toList());
+        if (retryCounter.get() == null) {
+            retryCounter.set(0);
+        }
 
-        ExchangeOrderEntity match = filteredOrders.stream().findFirst().orElse(null);
-        if (Objects.nonNull(match)) {
-            savedExchangeOrder.setStatus(Status.PROCESSED);
-            exchangeOrderRepository.save(savedExchangeOrder);
-            match.setStatus(Status.PROCESSED);
-            exchangeOrderRepository.save(match);
+        if (retryCounter.get() <= RETRY_COUNTER_MAX) {
+            try {
+                List<ExchangeOrderEntity> pendingOrders = exchangeOrderRepository.findByStatus(Status.PENDING);
+
+                exchangeOrder.setStatus(Status.PENDING);
+                savedExchangeOrder = exchangeOrderRepository.save(toExchangeOrderEntity(exchangeOrder));
+
+                List<ExchangeOrderEntity> filteredOrders = pendingOrders.stream()
+                        .filter(order -> !order.getExchangeType().equals(exchangeOrder.getExchangeType()))
+                        .filter(order -> order.getSourceCurrency().equals(exchangeOrder.getSourceCurrency()))
+                        .filter(order -> order.getTargetCurrency().equals(exchangeOrder.getTargetCurrency()))
+                        .filter(order -> order.getAmount().equals(exchangeOrder.getAmount()))
+                        .collect(Collectors.toList());
+
+                ExchangeOrderEntity match = filteredOrders.stream().findFirst().orElse(null);
+                if (Objects.nonNull(match)) {
+                    savedExchangeOrder.setStatus(Status.PROCESSED);
+                    exchangeOrderRepository.save(savedExchangeOrder);
+                    match.setStatus(Status.PROCESSED);
+                    exchangeOrderRepository.save(match);
+                }
+            } catch (RuntimeException ex) {
+
+                if (retryCounter.get() <= RETRY_COUNTER_MAX) {
+                    Integer updatedCounter = retryCounter.get() + 1;
+                    retryCounter.set(updatedCounter);
+                    this.createExchangeOrder(exchangeOrder);
+                } else {
+                    throw new RuntimeException();
+                }
+            }
         }
         return savedExchangeOrder.getId();
     }

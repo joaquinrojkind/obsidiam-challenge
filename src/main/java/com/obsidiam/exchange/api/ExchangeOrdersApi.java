@@ -19,17 +19,12 @@ public class ExchangeOrdersApi {
     @PostMapping("/orders")
     public ResponseEntity<ExchangeOrderResponseDto> createExchangeOrder(@RequestBody ExchangeOrderDto exchangeOrderDto) {
 
-        Long exchangeOrderId;
-        try {
-            exchangeOrderId = exchangeOrderService.createExchangeOrder(toExchangeOrder(exchangeOrderDto));
-        } catch (RuntimeException e) {
-            // TODO exception handling
-            throw e;
-        }
+        Long exchangeOrderId = exchangeOrderService.createExchangeOrder(toExchangeOrder(exchangeOrderDto));
+
         ExchangeOrderResponseDto response = ExchangeOrderResponseDto.builder()
-                .id(exchangeOrderId)
-                .location(String.format("/exchanges/%s/status", exchangeOrderId))
-                .build();
+            .id(exchangeOrderId)
+            .location(String.format("/exchanges/%s/status", exchangeOrderId))
+            .build();
 
         return ResponseEntity.accepted().body(response);
     }
