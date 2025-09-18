@@ -3,6 +3,7 @@ package com.obsidiam.exchange.api;
 import com.obsidiam.exchange.api.dto.ExchangeOrderDto;
 import com.obsidiam.exchange.api.dto.ExchangeOrderResponseDto;
 import com.obsidiam.exchange.api.dto.ExchangeOrderStatusResponseDto;
+import com.obsidiam.exchange.security.SecurityService;
 import com.obsidiam.exchange.service.ExchangeOrderService;
 import com.obsidiam.exchange.service.model.ExchangeOrder;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,10 +15,15 @@ import org.springframework.web.bind.annotation.*;
 public class ExchangeOrdersApi {
 
     @Autowired
+    private SecurityService securityService;
+
+    @Autowired
     private ExchangeOrderService exchangeOrderService;
 
     @PostMapping("/orders")
-    public ResponseEntity<ExchangeOrderResponseDto> createExchangeOrder(@RequestBody ExchangeOrderDto exchangeOrderDto) {
+    public ResponseEntity<ExchangeOrderResponseDto> createExchangeOrder(@RequestBody ExchangeOrderDto exchangeOrderDto, @RequestHeader(value = "Authorization", required = true) String token) {
+
+        securityService.isAuthorized(token);
 
         Long exchangeOrderId = exchangeOrderService.createExchangeOrder(toExchangeOrder(exchangeOrderDto));
 
@@ -30,12 +36,19 @@ public class ExchangeOrdersApi {
     }
 
     @GetMapping("/orders/{id}/status")
-    public ResponseEntity<ExchangeOrderStatusResponseDto> checkExchangeOrderStatus(@PathVariable("id") Long exchangeOrderId) {
+    public ResponseEntity<ExchangeOrderStatusResponseDto> checkExchangeOrderStatus(@PathVariable("id") Long exchangeOrderId, @RequestHeader(value = "Authorization", required = true) String token) {
+
+        securityService.isAuthorized(token);
 
         return ResponseEntity.ok(
                 ExchangeOrderStatusResponseDto.builder()
                         .status(exchangeOrderService.checkExchangeOrderStatus(exchangeOrderId))
                         .build());
+    }
+
+    @GetMapping("/security/token")
+    public ResponseEntity<String> getAccessToken() {
+        return ResponseEntity.ok(securityService.getToken("dXNlcjpwYXNzd29yZA=="));
     }
 
     private ExchangeOrder toExchangeOrder(ExchangeOrderDto exchangeOrderDto) {

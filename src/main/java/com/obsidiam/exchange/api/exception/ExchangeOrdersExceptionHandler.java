@@ -33,4 +33,17 @@ public class ExchangeOrdersExceptionHandler {
 				.status(errorPayload.getStatus())
 				.body(errorPayload);
 	}
+
+	@ExceptionHandler({ SecurityException.class })
+	public ResponseEntity handleSecurityException(SecurityException exception) {
+		ApiErrorDto errorPayload = ApiErrorDto.builder()
+				.status(HttpStatus.UNAUTHORIZED.value())
+				.code(HttpStatus.UNAUTHORIZED.name())
+				.message("Invalid authentication token")
+				.build();
+		return ResponseEntity
+				.status(errorPayload.getStatus())
+				.body(errorPayload);
+	}
+
 }

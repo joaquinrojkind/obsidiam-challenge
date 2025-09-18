@@ -25,9 +25,7 @@ public class ExchangeOrderServiceImpl implements ExchangeOrderService {
 
     /**
      * The transactional annotation ensures that nothing will be committed to the database until
-     * the method returns successfully. Otherwise, it will rollback the transaction. This should
-     * take care of some of the possible failure scenarios although not all of them. More details
-     * on this can be found in the README file of the project.
+     * the method returns successfully. Otherwise, it will rollback the transaction.
      */
     @Override
     @Transactional
